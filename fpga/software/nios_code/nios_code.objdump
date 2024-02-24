@@ -67,11 +67,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
  24 .sopc_system_name 00000008  00000000  00000000  000068a1  2**0
                   CONTENTS, READONLY
- 25 .quartus_project_dir 00000039  00000000  00000000  000068a9  2**0
+ 25 .quartus_project_dir 00000036  00000000  00000000  000068a9  2**0
                   CONTENTS, READONLY
- 26 .jdi          000048a4  00000000  00000000  000068e2  2**0
+ 26 .jdi          000048a4  00000000  00000000  000068df  2**0
                   CONTENTS, READONLY
- 27 .sopcinfo     0003d7e9  00000000  00000000  0000b186  2**0
+ 27 .sopcinfo     0003f91f  00000000  00000000  0000b183  2**0
                   CONTENTS, READONLY
 SYMBOL TABLE:
 00010000 l    d  .entry	00000000 .entry
@@ -161,16 +161,8 @@ SYMBOL TABLE:
 Disassembly of section .entry:
 
 00010000 <__reset>:
- * Jump to the _start entry point in the .text section if reset code
- * is allowed or if optimizing for RTL simulation.
- */
-#if defined(ALT_ALLOW_CODE_AT_RESET) || defined(ALT_SIM_OPTIMIZE)
-    /* Jump to the _start entry point in the .text section. */
-    movhi r1, %hi(_start)
    10000:	00400074 	movhi	at,1
-    ori r1, r1, %lo(_start)
    10004:	08400814 	ori	at,at,32
-    jmp r1
    10008:	0800683a 	jmp	at
 
 0001000c <_exit>:
@@ -179,140 +171,42 @@ Disassembly of section .entry:
 Disassembly of section .text:
 
 00010020 <_start>:
-
-    /*
-     * Now that the caches are initialized, set up the stack pointer and global pointer.
-     * The values provided by the linker are assumed to be correctly aligned.
-     */
-    movhi sp, %hi(__alt_stack_pointer)
    10020:	06c000b4 	movhi	sp,2
-    ori sp, sp, %lo(__alt_stack_pointer)
    10024:	dec00014 	ori	sp,sp,0
-    movhi gp, %hi(_gp)
    10028:	06800074 	movhi	gp,1
-    ori gp, gp, %lo(_gp)
    1002c:	d6a1b714 	ori	gp,gp,34524
- */
-#ifndef ALT_SIM_OPTIMIZE
-    /* Log that the BSS is about to be cleared. */
-    ALT_LOG_PUTS(alt_log_msg_bss)
-
-    movhi r2, %hi(__bss_start)
    10030:	00800074 	movhi	r2,1
-    ori r2, r2, %lo(__bss_start)
    10034:	1081b914 	ori	r2,r2,1764
-
-    movhi r3, %hi(__bss_end)
    10038:	00c00074 	movhi	r3,1
-    ori r3, r3, %lo(__bss_end)
    1003c:	18c1bc14 	ori	r3,r3,1776
-
-    beq r2, r3, 1f
    10040:	10c00326 	beq	r2,r3,10050 <_start+0x30>
-
-0:
-    stw zero, (r2)
    10044:	10000015 	stw	zero,0(r2)
-    addi r2, r2, 4
    10048:	10800104 	addi	r2,r2,4
-    bltu r2, r3, 0b
    1004c:	10fffd36 	bltu	r2,r3,10044 <__alt_data_end+0xffff0044>
-     * section aren't defined until alt_load() has been called).
-     */
-    mov   et, zero
-#endif
-
-    call alt_load
    10050:	00100dc0 	call	100dc <alt_load>
-
-    /* Log that alt_main is about to be called. */
-    ALT_LOG_PUTS(alt_log_msg_alt_main)
-
-    /* Call the C entry point. It should never return. */
-    call alt_main
    10054:	00101bc0 	call	101bc <alt_main>
 
 00010058 <alt_after_alt_main>:
-
-    /* Wait in infinite loop in case alt_main does return. */
-alt_after_alt_main:
-    br alt_after_alt_main
    10058:	003fff06 	br	10058 <__alt_data_end+0xffff0058>
 
 0001005c <main>:
-#include "system.h"
-#include "altera_avalon_pio_regs.h"
-#include "sys/alt_stdio.h"
-
-int main()
-{ 
    1005c:	defffc04 	addi	sp,sp,-16
-  alt_putstr("Starting!\n");
    10060:	01000074 	movhi	r4,1
-#include "system.h"
-#include "altera_avalon_pio_regs.h"
-#include "sys/alt_stdio.h"
-
-int main()
-{ 
    10064:	dc800215 	stw	r18,8(sp)
    10068:	dc400115 	stw	r17,4(sp)
    1006c:	dc000015 	stw	r16,0(sp)
-  alt_putstr("Starting!\n");
    10070:	2101b104 	addi	r4,r4,1732
-  if (acc_dev == NULL) { // if return 1, check if the spi ip name is "accelerometer_spi"
-      return 1;
-  }*/
-
-  while (1) {
-	  alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
    10074:	048000b4 	movhi	r18,2
-	  alt_16 val_y = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
    10078:	044000b4 	movhi	r17,2
-	  alt_16 val_z = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
    1007c:	040000b4 	movhi	r16,2
-#include "system.h"
-#include "altera_avalon_pio_regs.h"
-#include "sys/alt_stdio.h"
-
-int main()
-{ 
    10080:	dfc00315 	stw	ra,12(sp)
-  if (acc_dev == NULL) { // if return 1, check if the spi ip name is "accelerometer_spi"
-      return 1;
-  }*/
-
-  while (1) {
-	  alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
    10084:	94840804 	addi	r18,r18,4128
-#include "altera_avalon_pio_regs.h"
-#include "sys/alt_stdio.h"
-
-int main()
-{ 
-  alt_putstr("Starting!\n");
    10088:	00103a00 	call	103a0 <alt_putstr>
-      return 1;
-  }*/
-
-  while (1) {
-	  alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
-	  alt_16 val_y = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
    1008c:	8c440404 	addi	r17,r17,4112
-	  alt_16 val_z = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
    10090:	84040004 	addi	r16,r16,4096
-  if (acc_dev == NULL) { // if return 1, check if the spi ip name is "accelerometer_spi"
-      return 1;
-  }*/
-
-  while (1) {
-	  alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
    10094:	91400037 	ldwio	r5,0(r18)
-	  alt_16 val_y = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
    10098:	89800037 	ldwio	r6,0(r17)
-	  alt_16 val_z = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
    1009c:	81c00037 	ldwio	r7,0(r16)
-	  alt_printf("%x %x %x\n", val_x, val_y, val_z);
    100a0:	01000074 	movhi	r4,1
    100a4:	39ffffcc 	andi	r7,r7,65535
    100a8:	31bfffcc 	andi	r6,r6,65535
@@ -325,30 +219,17 @@ int main()
    100c4:	29600004 	addi	r5,r5,-32768
    100c8:	2101b404 	addi	r4,r4,1744
    100cc:	00101e80 	call	101e8 <alt_printf>
-	  usleep(2000);
    100d0:	0101f404 	movi	r4,2000
    100d4:	00103d80 	call	103d8 <usleep>
    100d8:	003fee06 	br	10094 <__alt_data_end+0xffff0094>
 
 000100dc <alt_load>:
- * there is no bootloader, so this application is responsible for loading to
- * RAM any sections that are required.
- */  
-
-void alt_load (void)
-{
    100dc:	deffff04 	addi	sp,sp,-4
    100e0:	01000074 	movhi	r4,1
    100e4:	01400074 	movhi	r5,1
    100e8:	dfc00015 	stw	ra,0(sp)
    100ec:	2101b704 	addi	r4,r4,1756
    100f0:	2941b804 	addi	r5,r5,1760
-
-static void ALT_INLINE alt_load_section (alt_u32* from, 
-                                         alt_u32* to, 
-                                         alt_u32* end)
-{
-  if (to != from)
    100f4:	2140061e 	bne	r4,r5,10110 <alt_load+0x34>
    100f8:	01000074 	movhi	r4,1
    100fc:	01400074 	movhi	r5,1
@@ -360,11 +241,7 @@ static void ALT_INLINE alt_load_section (alt_u32* from,
    10114:	18c1b804 	addi	r3,r3,1760
    10118:	1907c83a 	sub	r3,r3,r4
    1011c:	0005883a 	mov	r2,zero
-  {
-    while( to != end )
    10120:	10fff526 	beq	r2,r3,100f8 <__alt_data_end+0xffff00f8>
-    {
-      *to++ = *from++;
    10124:	114f883a 	add	r7,r2,r5
    10128:	39c00017 	ldw	r7,0(r7)
    1012c:	110d883a 	add	r6,r2,r4
@@ -375,62 +252,28 @@ static void ALT_INLINE alt_load_section (alt_u32* from,
    10140:	01400074 	movhi	r5,1
    10144:	2101b104 	addi	r4,r4,1732
    10148:	2941b104 	addi	r5,r5,1732
-
-static void ALT_INLINE alt_load_section (alt_u32* from, 
-                                         alt_u32* to, 
-                                         alt_u32* end)
-{
-  if (to != from)
    1014c:	2140101e 	bne	r4,r5,10190 <alt_load+0xb4>
    10150:	00000b06 	br	10180 <alt_load+0xa4>
    10154:	00c00074 	movhi	r3,1
    10158:	18c00804 	addi	r3,r3,32
    1015c:	1907c83a 	sub	r3,r3,r4
    10160:	0005883a 	mov	r2,zero
-  {
-    while( to != end )
    10164:	10fff526 	beq	r2,r3,1013c <__alt_data_end+0xffff013c>
-    {
-      *to++ = *from++;
    10168:	114f883a 	add	r7,r2,r5
    1016c:	39c00017 	ldw	r7,0(r7)
    10170:	110d883a 	add	r6,r2,r4
    10174:	10800104 	addi	r2,r2,4
    10178:	31c00015 	stw	r7,0(r6)
    1017c:	003ff906 	br	10164 <__alt_data_end+0xffff0164>
-  
-  /*
-   * Now ensure that the caches are in synch.
-   */
-  
-  alt_dcache_flush_all();
    10180:	00104bc0 	call	104bc <alt_dcache_flush_all>
-  alt_icache_flush_all();
-}
    10184:	dfc00017 	ldw	ra,0(sp)
    10188:	dec00104 	addi	sp,sp,4
-  /*
-   * Now ensure that the caches are in synch.
-   */
-  
-  alt_dcache_flush_all();
-  alt_icache_flush_all();
    1018c:	00104c01 	jmpi	104c0 <alt_icache_flush_all>
    10190:	00c00074 	movhi	r3,1
    10194:	18c1b704 	addi	r3,r3,1756
    10198:	1907c83a 	sub	r3,r3,r4
-
-static void ALT_INLINE alt_load_section (alt_u32* from, 
-                                         alt_u32* to, 
-                                         alt_u32* end)
-{
-  if (to != from)
    1019c:	0005883a 	mov	r2,zero
-  {
-    while( to != end )
    101a0:	18bff726 	beq	r3,r2,10180 <__alt_data_end+0xffff0180>
-    {
-      *to++ = *from++;
    101a4:	114f883a 	add	r7,r2,r5
    101a8:	39c00017 	ldw	r7,0(r7)
    101ac:	110d883a 	add	r6,r2,r4
@@ -439,73 +282,19 @@ static void ALT_INLINE alt_load_section (alt_u32* from,
    101b8:	003ff906 	br	101a0 <__alt_data_end+0xffff01a0>
 
 000101bc <alt_main>:
- * devices/filesystems/components in the system; and call the entry point for
- * the users application, i.e. main().
- */
-
-void alt_main (void)
-{
    101bc:	deffff04 	addi	sp,sp,-4
-#endif
-
-  /* ALT LOG - please see HAL/sys/alt_log_printf.h for details */
-  ALT_LOG_PRINT_BOOT("[alt_main.c] Entering alt_main, calling alt_irq_init.\r\n");
-  /* Initialize the interrupt controller. */
-  alt_irq_init (NULL);
    101c0:	0009883a 	mov	r4,zero
- * devices/filesystems/components in the system; and call the entry point for
- * the users application, i.e. main().
- */
-
-void alt_main (void)
-{
    101c4:	dfc00015 	stw	ra,0(sp)
-#endif
-
-  /* ALT LOG - please see HAL/sys/alt_log_printf.h for details */
-  ALT_LOG_PRINT_BOOT("[alt_main.c] Entering alt_main, calling alt_irq_init.\r\n");
-  /* Initialize the interrupt controller. */
-  alt_irq_init (NULL);
    101c8:	00103dc0 	call	103dc <alt_irq_init>
-  ALT_LOG_PRINT_BOOT("[alt_main.c] Done OS Init, calling alt_sem_create.\r\n");
-  ALT_SEM_CREATE (&alt_fd_list_lock, 1);
-
-  /* Initialize the device drivers/software components. */
-  ALT_LOG_PRINT_BOOT("[alt_main.c] Calling alt_sys_init.\r\n");
-  alt_sys_init();
    101cc:	00103fc0 	call	103fc <alt_sys_init>
-   */
-
-  ALT_LOG_PRINT_BOOT("[alt_main.c] Calling main.\r\n");
-
-#ifdef ALT_NO_EXIT
-  main (alt_argc, alt_argv, alt_envp);
    101d0:	d1a00217 	ldw	r6,-32760(gp)
    101d4:	d1600317 	ldw	r5,-32756(gp)
    101d8:	d1200417 	ldw	r4,-32752(gp)
-  close(STDOUT_FILENO);
-  exit (result);
-#endif
-
-  ALT_LOG_PRINT_BOOT("[alt_main.c] After main - we should not be here?.\r\n");
-}
    101dc:	dfc00017 	ldw	ra,0(sp)
    101e0:	dec00104 	addi	sp,sp,4
-   */
-
-  ALT_LOG_PRINT_BOOT("[alt_main.c] Calling main.\r\n");
-
-#ifdef ALT_NO_EXIT
-  main (alt_argc, alt_argv, alt_envp);
    101e4:	001005c1 	jmpi	1005c <main>
 
 000101e8 <alt_printf>:
-/* 
- * ALT printf function 
- */
-void 
-alt_printf(const char* fmt, ... )
-{
    101e8:	defff204 	addi	sp,sp,-56
    101ec:	2005883a 	mov	r2,r4
    101f0:	dfc00a15 	stw	ra,40(sp)
@@ -521,217 +310,71 @@ alt_printf(const char* fmt, ... )
    10218:	d9400b15 	stw	r5,44(sp)
    1021c:	d9800c15 	stw	r6,48(sp)
    10220:	d9c00d15 	stw	r7,52(sp)
-    w = fmt;
-    while ((c = *w++) != 0)
-    {
-        /* If not a format escape character, just print  */
-        /* character.  Otherwise, process format string. */
-        if (c != '%')
    10224:	04000944 	movi	r16,37
- */
-void 
-alt_printf(const char* fmt, ... )
-{
-	va_list args;
-	va_start(args, fmt);
    10228:	dd400b04 	addi	r21,sp,44
-                if (c == '%')
-                {
-                    /* Process "%" escape sequence. */
-                    alt_putchar(c);
-                } 
-                else if (c == 'c')
    1022c:	048018c4 	movi	r18,99
-                {
-                    int v = va_arg(args, int);
-                    alt_putchar(v);
-                }
-                else if (c == 'x')
    10230:	04c01e04 	movi	r19,120
-                        else
-                            c = 'a' + digit - 10;
-                        alt_putchar(c);
-                    }
-                }
-                else if (c == 's')
    10234:	05001cc4 	movi	r20,115
-    const char *w;
-    char c;
-
-    /* Process format string. */
-    w = fmt;
-    while ((c = *w++) != 0)
    10238:	11000007 	ldb	r4,0(r2)
    1023c:	20003a26 	beq	r4,zero,10328 <alt_printf+0x140>
-    {
-        /* If not a format escape character, just print  */
-        /* character.  Otherwise, process format string. */
-        if (c != '%')
    10240:	24000226 	beq	r4,r16,1024c <alt_printf+0x64>
-    const char *w;
-    char c;
-
-    /* Process format string. */
-    w = fmt;
-    while ((c = *w++) != 0)
    10244:	14400044 	addi	r17,r2,1
    10248:	00001406 	br	1029c <alt_printf+0xb4>
-        }
-        else
-        {
-            /* Get format character.  If none     */
-            /* available, processing is complete. */
-            if ((c = *w++) != 0)
    1024c:	14400084 	addi	r17,r2,2
    10250:	10800047 	ldb	r2,1(r2)
    10254:	10003426 	beq	r2,zero,10328 <alt_printf+0x140>
-            {
-                if (c == '%')
    10258:	1400021e 	bne	r2,r16,10264 <alt_printf+0x7c>
-                {
-                    /* Process "%" escape sequence. */
-                    alt_putchar(c);
    1025c:	8009883a 	mov	r4,r16
    10260:	00000e06 	br	1029c <alt_printf+0xb4>
-                } 
-                else if (c == 'c')
    10264:	1480051e 	bne	r2,r18,1027c <alt_printf+0x94>
-                {
-                    int v = va_arg(args, int);
-                    alt_putchar(v);
    10268:	a9000017 	ldw	r4,0(r21)
-                    /* Process "%" escape sequence. */
-                    alt_putchar(c);
-                } 
-                else if (c == 'c')
-                {
-                    int v = va_arg(args, int);
    1026c:	ad800104 	addi	r22,r21,4
    10270:	b02b883a 	mov	r21,r22
-                    alt_putchar(v);
    10274:	00103580 	call	10358 <alt_putchar>
    10278:	00002906 	br	10320 <alt_printf+0x138>
-                }
-                else if (c == 'x')
    1027c:	14c0201e 	bne	r2,r19,10300 <alt_printf+0x118>
-                {
-                    /* Process hexadecimal number format. */
-                    unsigned long v = va_arg(args, unsigned long);
    10280:	adc00017 	ldw	r23,0(r21)
    10284:	ad400104 	addi	r21,r21,4
-                    unsigned long digit;
-                    int digit_shift;
-
-                    /* If the number value is zero, just print and continue. */
-                    if (v == 0)
    10288:	b8000326 	beq	r23,zero,10298 <alt_printf+0xb0>
    1028c:	05800704 	movi	r22,28
-                        continue;
-                    }
-
-                    /* Find first non-zero digit. */
-                    digit_shift = 28;
-                    while (!(v & (0xF << digit_shift)))
    10290:	00c003c4 	movi	r3,15
    10294:	00000306 	br	102a4 <alt_printf+0xbc>
-                    int digit_shift;
-
-                    /* If the number value is zero, just print and continue. */
-                    if (v == 0)
-                    {
-                        alt_putchar('0');
    10298:	01000c04 	movi	r4,48
    1029c:	00103580 	call	10358 <alt_putchar>
-                        continue;
    102a0:	00001f06 	br	10320 <alt_printf+0x138>
-                    }
-
-                    /* Find first non-zero digit. */
-                    digit_shift = 28;
-                    while (!(v & (0xF << digit_shift)))
    102a4:	1d84983a 	sll	r2,r3,r22
    102a8:	15c4703a 	and	r2,r2,r23
    102ac:	1000021e 	bne	r2,zero,102b8 <alt_printf+0xd0>
-                        digit_shift -= 4;
    102b0:	b5bfff04 	addi	r22,r22,-4
    102b4:	003ffb06 	br	102a4 <__alt_data_end+0xffff02a4>
-
-                    /* Print digits. */
-                    for (; digit_shift >= 0; digit_shift -= 4)
-                    {
-                        digit = (v & (0xF << digit_shift)) >> digit_shift;
    102b8:	070003c4 	movi	fp,15
-                        if (digit <= 9)
    102bc:	00c00244 	movi	r3,9
-                    digit_shift = 28;
-                    while (!(v & (0xF << digit_shift)))
-                        digit_shift -= 4;
-
-                    /* Print digits. */
-                    for (; digit_shift >= 0; digit_shift -= 4)
    102c0:	b0001716 	blt	r22,zero,10320 <alt_printf+0x138>
-                    {
-                        digit = (v & (0xF << digit_shift)) >> digit_shift;
    102c4:	e588983a 	sll	r4,fp,r22
    102c8:	25c8703a 	and	r4,r4,r23
    102cc:	2588d83a 	srl	r4,r4,r22
-                        if (digit <= 9)
    102d0:	19000236 	bltu	r3,r4,102dc <alt_printf+0xf4>
-                            c = '0' + digit;
    102d4:	21000c04 	addi	r4,r4,48
    102d8:	00000106 	br	102e0 <alt_printf+0xf8>
-                        else
-                            c = 'a' + digit - 10;
    102dc:	210015c4 	addi	r4,r4,87
-                        alt_putchar(c);
    102e0:	21003fcc 	andi	r4,r4,255
    102e4:	2100201c 	xori	r4,r4,128
    102e8:	213fe004 	addi	r4,r4,-128
    102ec:	d8c00015 	stw	r3,0(sp)
    102f0:	00103580 	call	10358 <alt_putchar>
-                    digit_shift = 28;
-                    while (!(v & (0xF << digit_shift)))
-                        digit_shift -= 4;
-
-                    /* Print digits. */
-                    for (; digit_shift >= 0; digit_shift -= 4)
    102f4:	b5bfff04 	addi	r22,r22,-4
    102f8:	d8c00017 	ldw	r3,0(sp)
    102fc:	003ff006 	br	102c0 <__alt_data_end+0xffff02c0>
-                        else
-                            c = 'a' + digit - 10;
-                        alt_putchar(c);
-                    }
-                }
-                else if (c == 's')
    10300:	1500071e 	bne	r2,r20,10320 <alt_printf+0x138>
-                {
-                    /* Process string format. */
-                    char *s = va_arg(args, char *);
    10304:	ad800017 	ldw	r22,0(r21)
    10308:	ad400104 	addi	r21,r21,4
-
-                    while(*s)
    1030c:	b1000007 	ldb	r4,0(r22)
    10310:	20000326 	beq	r4,zero,10320 <alt_printf+0x138>
-                      alt_putchar(*s++);
    10314:	b5800044 	addi	r22,r22,1
    10318:	00103580 	call	10358 <alt_putchar>
    1031c:	003ffb06 	br	1030c <__alt_data_end+0xffff030c>
-                    /* Process "%" escape sequence. */
-                    alt_putchar(c);
-                } 
-                else if (c == 'c')
-                {
-                    int v = va_arg(args, int);
    10320:	8805883a 	mov	r2,r17
    10324:	003fc406 	br	10238 <__alt_data_end+0xffff0238>
-        }
-    }
-#ifdef ALT_SEMIHOSTING
-    alt_putbufflush();
-#endif
-}
    10328:	dfc00a17 	ldw	ra,40(sp)
    1032c:	df000917 	ldw	fp,36(sp)
    10330:	ddc00817 	ldw	r23,32(sp)
@@ -746,324 +389,102 @@ alt_printf(const char* fmt, ... )
    10354:	f800283a 	ret
 
 00010358 <alt_putchar>:
- * Uses the ALT_DRIVER_WRITE() macro to call directly to driver if available.
- * Otherwise, uses newlib provided putchar() routine.
- */
-int 
-alt_putchar(int c)
-{
    10358:	defffd04 	addi	sp,sp,-12
    1035c:	dc000115 	stw	r16,4(sp)
-	char        c1 = (char)(c & 0xff);
-    return write(STDOUT_FILENO,&c1,1);
-#else
-#ifdef ALT_USE_DIRECT_DRIVERS
-    ALT_DRIVER_WRITE_EXTERNS(ALT_STDOUT_DEV);
-    char        c1 = (char)(c & 0xff);
    10360:	d9000005 	stb	r4,0(sp)
- * Uses the ALT_DRIVER_WRITE() macro to call directly to driver if available.
- * Otherwise, uses newlib provided putchar() routine.
- */
-int 
-alt_putchar(int c)
-{
    10364:	2021883a 	mov	r16,r4
-#else
-#ifdef ALT_USE_DIRECT_DRIVERS
-    ALT_DRIVER_WRITE_EXTERNS(ALT_STDOUT_DEV);
-    char        c1 = (char)(c & 0xff);
-
-    if (ALT_DRIVER_WRITE(ALT_STDOUT_DEV, &c1, 1, 0) == -1) {
    10368:	01000074 	movhi	r4,1
    1036c:	000f883a 	mov	r7,zero
    10370:	01800044 	movi	r6,1
    10374:	d80b883a 	mov	r5,sp
    10378:	2101b704 	addi	r4,r4,1756
- * Uses the ALT_DRIVER_WRITE() macro to call directly to driver if available.
- * Otherwise, uses newlib provided putchar() routine.
- */
-int 
-alt_putchar(int c)
-{
    1037c:	dfc00215 	stw	ra,8(sp)
-#else
-#ifdef ALT_USE_DIRECT_DRIVERS
-    ALT_DRIVER_WRITE_EXTERNS(ALT_STDOUT_DEV);
-    char        c1 = (char)(c & 0xff);
-
-    if (ALT_DRIVER_WRITE(ALT_STDOUT_DEV, &c1, 1, 0) == -1) {
    10380:	00104000 	call	10400 <altera_avalon_jtag_uart_write>
    10384:	00ffffc4 	movi	r3,-1
    10388:	10c00126 	beq	r2,r3,10390 <alt_putchar+0x38>
-        return -1;
-    }
-    return c;
    1038c:	8005883a 	mov	r2,r16
-#else
-    return putchar(c);
-#endif
-#endif
-}
    10390:	dfc00217 	ldw	ra,8(sp)
    10394:	dc000117 	ldw	r16,4(sp)
    10398:	dec00304 	addi	sp,sp,12
    1039c:	f800283a 	ret
 
 000103a0 <alt_putstr>:
- * Uses the ALT_DRIVER_WRITE() macro to call directly to driver if available.
- * Otherwise, uses newlib provided fputs() routine.
- */
-int 
-alt_putstr(const char* str)
-{
    103a0:	defffe04 	addi	sp,sp,-8
    103a4:	dc000015 	stw	r16,0(sp)
    103a8:	dfc00115 	stw	ra,4(sp)
    103ac:	2021883a 	mov	r16,r4
-#ifdef ALT_SEMIHOSTING
-    return write(STDOUT_FILENO,str,strlen(str));
-#else
-#ifdef ALT_USE_DIRECT_DRIVERS
-    ALT_DRIVER_WRITE_EXTERNS(ALT_STDOUT_DEV);
-    return ALT_DRIVER_WRITE(ALT_STDOUT_DEV, str, strlen(str), 0);
    103b0:	00104cc0 	call	104cc <strlen>
    103b4:	01000074 	movhi	r4,1
    103b8:	000f883a 	mov	r7,zero
    103bc:	100d883a 	mov	r6,r2
    103c0:	800b883a 	mov	r5,r16
    103c4:	2101b704 	addi	r4,r4,1756
-#else
-    return fputs(str, stdout);
-#endif
-#endif
-}
    103c8:	dfc00117 	ldw	ra,4(sp)
    103cc:	dc000017 	ldw	r16,0(sp)
    103d0:	dec00204 	addi	sp,sp,8
-#ifdef ALT_SEMIHOSTING
-    return write(STDOUT_FILENO,str,strlen(str));
-#else
-#ifdef ALT_USE_DIRECT_DRIVERS
-    ALT_DRIVER_WRITE_EXTERNS(ALT_STDOUT_DEV);
-    return ALT_DRIVER_WRITE(ALT_STDOUT_DEV, str, strlen(str), 0);
    103d4:	00104001 	jmpi	10400 <altera_avalon_jtag_uart_write>
 
 000103d8 <usleep>:
-int ALT_USLEEP (useconds_t us)
-#else
-unsigned int ALT_USLEEP (unsigned int us)
-#endif
-{
-  return alt_busy_sleep(us);
    103d8:	00104341 	jmpi	10434 <alt_busy_sleep>
 
 000103dc <alt_irq_init>:
- * The "base" parameter is ignored and only
- * present for backwards-compatibility.
- */
-
-void alt_irq_init ( const void* base )
-{
    103dc:	deffff04 	addi	sp,sp,-4
    103e0:	dfc00015 	stw	ra,0(sp)
-    ALTERA_NIOS2_GEN2_IRQ_INIT ( CPU, cpu);
    103e4:	00104c40 	call	104c4 <altera_nios2_gen2_irq_init>
- * alt_irq_cpu_enable_interrupts() enables the CPU to start taking interrupts.
- */
-static ALT_INLINE void ALT_ALWAYS_INLINE 
-       alt_irq_cpu_enable_interrupts (void)
-{
-    NIOS2_WRITE_STATUS(NIOS2_STATUS_PIE_MSK
    103e8:	00800044 	movi	r2,1
    103ec:	1001703a 	wrctl	status,r2
-    alt_irq_cpu_enable_interrupts();
-}
    103f0:	dfc00017 	ldw	ra,0(sp)
    103f4:	dec00104 	addi	sp,sp,4
    103f8:	f800283a 	ret
 
 000103fc <alt_sys_init>:
- * Initialize the non-interrupt controller devices.
- * Called after alt_irq_init().
- */
-
-void alt_sys_init( void )
-{
    103fc:	f800283a 	ret
 
 00010400 <altera_avalon_jtag_uart_write>:
- */
-
-int altera_avalon_jtag_uart_write(altera_avalon_jtag_uart_state* sp, 
-  const char * ptr, int count, int flags)
-{
-  unsigned int base = sp->base;
    10400:	21000017 	ldw	r4,0(r4)
- * one FIFOs worth of data.  But you said you didn't want to use interrupts :-)
- */
-
-int altera_avalon_jtag_uart_write(altera_avalon_jtag_uart_state* sp, 
-  const char * ptr, int count, int flags)
-{
    10404:	3005883a 	mov	r2,r6
-  unsigned int base = sp->base;
-
-  const char * end = ptr + count;
    10408:	298d883a 	add	r6,r5,r6
-
-  while (ptr < end)
-    if ((IORD_ALTERA_AVALON_JTAG_UART_CONTROL(base) & ALTERA_AVALON_JTAG_UART_CONTROL_WSPACE_MSK) != 0)
    1040c:	21c00104 	addi	r7,r4,4
-{
-  unsigned int base = sp->base;
-
-  const char * end = ptr + count;
-
-  while (ptr < end)
    10410:	2980072e 	bgeu	r5,r6,10430 <altera_avalon_jtag_uart_write+0x30>
-    if ((IORD_ALTERA_AVALON_JTAG_UART_CONTROL(base) & ALTERA_AVALON_JTAG_UART_CONTROL_WSPACE_MSK) != 0)
    10414:	38c00037 	ldwio	r3,0(r7)
    10418:	18ffffec 	andhi	r3,r3,65535
    1041c:	183ffc26 	beq	r3,zero,10410 <__alt_data_end+0xffff0410>
-      IOWR_ALTERA_AVALON_JTAG_UART_DATA(base, *ptr++);
    10420:	28c00007 	ldb	r3,0(r5)
    10424:	20c00035 	stwio	r3,0(r4)
    10428:	29400044 	addi	r5,r5,1
    1042c:	003ff806 	br	10410 <__alt_data_end+0xffff0410>
-
-  return count;
-}
    10430:	f800283a 	ret
 
 00010434 <alt_busy_sleep>:
-  {
-    cycles_per_loop = 3;
-  }
-  
-
-  big_loops = us / (INT_MAX/
    10434:	014666b4 	movhi	r5,6554
-#include "alt_types.h"
-
-#include "priv/alt_busy_sleep.h"
-
-unsigned int alt_busy_sleep (unsigned int us)
-{
    10438:	defffe04 	addi	sp,sp,-8
-  {
-    cycles_per_loop = 3;
-  }
-  
-
-  big_loops = us / (INT_MAX/
    1043c:	29666644 	addi	r5,r5,-26215
-#include "alt_types.h"
-
-#include "priv/alt_busy_sleep.h"
-
-unsigned int alt_busy_sleep (unsigned int us)
-{
    10440:	dc000015 	stw	r16,0(sp)
    10444:	dfc00115 	stw	ra,4(sp)
    10448:	2021883a 	mov	r16,r4
-  {
-    cycles_per_loop = 3;
-  }
-  
-
-  big_loops = us / (INT_MAX/
    1044c:	00105e00 	call	105e0 <__udivsi3>
-  (ALT_CPU_FREQ/(cycles_per_loop * 1000000)));
-
-  if (big_loops)
    10450:	10001026 	beq	r2,zero,10494 <alt_busy_sleep+0x60>
-      /*
-      * Do NOT Try to single step the asm statement below 
-      * (single step will never return)
-      * Step out of this function or set a breakpoint after the asm statements
-      */
-      __asm__ volatile (
    10454:	01600034 	movhi	r5,32768
-        "\n1:"
-        "\n\t.pushsection .debug_alt_sim_info"
-        "\n\t.int 4, 0, 0b, 1b"
-        "\n\t.popsection"
-        :: "r" (INT_MAX));
-      us -= (INT_MAX/(ALT_CPU_FREQ/
    10458:	013999b4 	movhi	r4,58982
    1045c:	0007883a 	mov	r3,zero
-      /*
-      * Do NOT Try to single step the asm statement below 
-      * (single step will never return)
-      * Step out of this function or set a breakpoint after the asm statements
-      */
-      __asm__ volatile (
    10460:	297fffc4 	addi	r5,r5,-1
-        "\n1:"
-        "\n\t.pushsection .debug_alt_sim_info"
-        "\n\t.int 4, 0, 0b, 1b"
-        "\n\t.popsection"
-        :: "r" (INT_MAX));
-      us -= (INT_MAX/(ALT_CPU_FREQ/
    10464:	211999c4 	addi	r4,r4,26215
-      /*
-      * Do NOT Try to single step the asm statement below 
-      * (single step will never return)
-      * Step out of this function or set a breakpoint after the asm statements
-      */
-      __asm__ volatile (
    10468:	297fffc4 	addi	r5,r5,-1
    1046c:	283ffe1e 	bne	r5,zero,10468 <__alt_data_end+0xffff0468>
-  big_loops = us / (INT_MAX/
-  (ALT_CPU_FREQ/(cycles_per_loop * 1000000)));
-
-  if (big_loops)
-  {
-    for(i=0;i<big_loops;i++)
    10470:	18c00044 	addi	r3,r3,1
-        "\n1:"
-        "\n\t.pushsection .debug_alt_sim_info"
-        "\n\t.int 4, 0, 0b, 1b"
-        "\n\t.popsection"
-        :: "r" (INT_MAX));
-      us -= (INT_MAX/(ALT_CPU_FREQ/
    10474:	8121883a 	add	r16,r16,r4
-  big_loops = us / (INT_MAX/
-  (ALT_CPU_FREQ/(cycles_per_loop * 1000000)));
-
-  if (big_loops)
-  {
-    for(i=0;i<big_loops;i++)
    10478:	18bffb16 	blt	r3,r2,10468 <__alt_data_end+0xffff0468>
-    /*
-    * Do NOT Try to single step the asm statement below 
-    * (single step will never return)
-    * Step out of this function or set a breakpoint after the asm statements
-    */
-    __asm__ volatile (
    1047c:	01400144 	movi	r5,5
    10480:	8009883a 	mov	r4,r16
    10484:	001069c0 	call	1069c <__mulsi3>
    10488:	10bfffc4 	addi	r2,r2,-1
    1048c:	103ffe1e 	bne	r2,zero,10488 <__alt_data_end+0xffff0488>
    10490:	00000506 	br	104a8 <alt_busy_sleep+0x74>
-    /*
-    * Do NOT Try to single step the asm statement below 
-    * (single step will never return)
-    * Step out of this function or set a breakpoint after the asm statements
-    */
-    __asm__ volatile (
    10494:	01400144 	movi	r5,5
    10498:	8009883a 	mov	r4,r16
    1049c:	001069c0 	call	1069c <__mulsi3>
    104a0:	10bfffc4 	addi	r2,r2,-1
    104a4:	00bffe16 	blt	zero,r2,104a0 <__alt_data_end+0xffff04a0>
-      "\n\t.popsection"
-      :: "r" (us*(ALT_CPU_FREQ/(cycles_per_loop * 1000000))));
-  }
-#endif /* #ifndef ALT_SIM_OPTIMIZE */
-  return 0;
-}
    104a8:	0005883a 	mov	r2,zero
    104ac:	dfc00117 	ldw	ra,4(sp)
    104b0:	dc000017 	ldw	r16,0(sp)
@@ -1071,30 +492,12 @@ unsigned int alt_busy_sleep (unsigned int us)
    104b8:	f800283a 	ret
 
 000104bc <alt_dcache_flush_all>:
-/*
- * alt_dcache_flush_all() is called to flush the entire data cache.
- */
-
-void alt_dcache_flush_all (void)
-{
    104bc:	f800283a 	ret
 
 000104c0 <alt_icache_flush_all>:
-/*
- * alt_icache_flush_all() is called to flush the entire instruction cache.
- */
-
-void alt_icache_flush_all (void)
-{
    104c0:	f800283a 	ret
 
 000104c4 <altera_nios2_gen2_irq_init>:
- * To initialize the internal interrupt controller, just clear the IENABLE
- * register so that all possible IRQs are disabled.
- */
-void altera_nios2_gen2_irq_init(void) 
-{
-    NIOS2_WRITE_IENABLE(0);
    104c4:	000170fa 	wrctl	ienable,zero
    104c8:	f800283a 	ret
 
