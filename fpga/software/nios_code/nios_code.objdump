@@ -35,43 +35,43 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   8 .debug_aranges 00000210  00000000  00000000  00001618  2**3
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_info   000012ee  00000000  00000000  00001828  2**0
+  9 .debug_info   000012e7  00000000  00000000  00001828  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_abbrev 00000a4a  00000000  00000000  00002b16  2**0
+ 10 .debug_abbrev 00000a4a  00000000  00000000  00002b0f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_line   00000b51  00000000  00000000  00003560  2**0
+ 11 .debug_line   00000b51  00000000  00000000  00003559  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_frame  000002bc  00000000  00000000  000040b4  2**2
+ 12 .debug_frame  000002bc  00000000  00000000  000040ac  2**2
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_str    00000840  00000000  00000000  00004370  2**0
+ 13 .debug_str    00000883  00000000  00000000  00004368  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_loc    00000760  00000000  00000000  00004bb0  2**0
+ 14 .debug_loc    00000760  00000000  00000000  00004beb  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_alt_sim_info 00000040  00000000  00000000  00005310  2**2
+ 15 .debug_alt_sim_info 00000040  00000000  00000000  0000534c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_ranges 00000110  00000000  00000000  00005350  2**3
+ 16 .debug_ranges 00000110  00000000  00000000  00005390  2**3
                   CONTENTS, READONLY, DEBUGGING
- 17 .thread_model 00000003  00000000  00000000  0000635a  2**0
+ 17 .thread_model 00000003  00000000  00000000  0000639a  2**0
                   CONTENTS, READONLY
- 18 .cpu          00000003  00000000  00000000  0000635d  2**0
+ 18 .cpu          00000003  00000000  00000000  0000639d  2**0
                   CONTENTS, READONLY
- 19 .qsys         00000001  00000000  00000000  00006360  2**0
+ 19 .qsys         00000001  00000000  00000000  000063a0  2**0
                   CONTENTS, READONLY
- 20 .simulation_enabled 00000001  00000000  00000000  00006361  2**0
+ 20 .simulation_enabled 00000001  00000000  00000000  000063a1  2**0
                   CONTENTS, READONLY
- 21 .stderr_dev   00000009  00000000  00000000  00006362  2**0
+ 21 .stderr_dev   00000009  00000000  00000000  000063a2  2**0
                   CONTENTS, READONLY
- 22 .stdin_dev    00000009  00000000  00000000  0000636b  2**0
+ 22 .stdin_dev    00000009  00000000  00000000  000063ab  2**0
                   CONTENTS, READONLY
- 23 .stdout_dev   00000009  00000000  00000000  00006374  2**0
+ 23 .stdout_dev   00000009  00000000  00000000  000063b4  2**0
                   CONTENTS, READONLY
- 24 .sopc_system_name 00000008  00000000  00000000  0000637d  2**0
+ 24 .sopc_system_name 00000008  00000000  00000000  000063bd  2**0
                   CONTENTS, READONLY
- 25 .quartus_project_dir 00000039  00000000  00000000  00006385  2**0
+ 25 .quartus_project_dir 00000032  00000000  00000000  000063c5  2**0
                   CONTENTS, READONLY
- 26 .jdi          000048a4  00000000  00000000  000063be  2**0
+ 26 .jdi          000048a4  00000000  00000000  000063f7  2**0
                   CONTENTS, READONLY
- 27 .sopcinfo     0003d7e9  00000000  00000000  0000ac62  2**0
+ 27 .sopcinfo     0003f91f  00000000  00000000  0000ac9b  2**0
                   CONTENTS, READONLY
 SYMBOL TABLE:
 00010000 l    d  .entry	00000000 .entry
@@ -402,24 +402,12 @@ int main()
    10164:	003fec06 	br	10118 <__alt_data_end+0xffff0118>
 
 00010168 <alt_load>:
- * there is no bootloader, so this application is responsible for loading to
- * RAM any sections that are required.
- */  
-
-void alt_load (void)
-{
    10168:	deffff04 	addi	sp,sp,-4
    1016c:	01000074 	movhi	r4,1
    10170:	01400074 	movhi	r5,1
    10174:	dfc00015 	stw	ra,0(sp)
    10178:	21017b04 	addi	r4,r4,1516
    1017c:	29417c04 	addi	r5,r5,1520
-
-static void ALT_INLINE alt_load_section (alt_u32* from, 
-                                         alt_u32* to, 
-                                         alt_u32* end)
-{
-  if (to != from)
    10180:	2140061e 	bne	r4,r5,1019c <alt_load+0x34>
    10184:	01000074 	movhi	r4,1
    10188:	01400074 	movhi	r5,1
@@ -431,11 +419,7 @@ static void ALT_INLINE alt_load_section (alt_u32* from,
    101a0:	18c17c04 	addi	r3,r3,1520
    101a4:	1907c83a 	sub	r3,r3,r4
    101a8:	0005883a 	mov	r2,zero
-  {
-    while( to != end )
    101ac:	10fff526 	beq	r2,r3,10184 <__alt_data_end+0xffff0184>
-    {
-      *to++ = *from++;
    101b0:	114f883a 	add	r7,r2,r5
    101b4:	39c00017 	ldw	r7,0(r7)
    101b8:	110d883a 	add	r6,r2,r4
@@ -446,62 +430,28 @@ static void ALT_INLINE alt_load_section (alt_u32* from,
    101cc:	01400074 	movhi	r5,1
    101d0:	21017804 	addi	r4,r4,1504
    101d4:	29417804 	addi	r5,r5,1504
-
-static void ALT_INLINE alt_load_section (alt_u32* from, 
-                                         alt_u32* to, 
-                                         alt_u32* end)
-{
-  if (to != from)
    101d8:	2140101e 	bne	r4,r5,1021c <alt_load+0xb4>
    101dc:	00000b06 	br	1020c <alt_load+0xa4>
    101e0:	00c00074 	movhi	r3,1
    101e4:	18c00804 	addi	r3,r3,32
    101e8:	1907c83a 	sub	r3,r3,r4
    101ec:	0005883a 	mov	r2,zero
-  {
-    while( to != end )
    101f0:	10fff526 	beq	r2,r3,101c8 <__alt_data_end+0xffff01c8>
-    {
-      *to++ = *from++;
    101f4:	114f883a 	add	r7,r2,r5
    101f8:	39c00017 	ldw	r7,0(r7)
    101fc:	110d883a 	add	r6,r2,r4
    10200:	10800104 	addi	r2,r2,4
    10204:	31c00015 	stw	r7,0(r6)
    10208:	003ff906 	br	101f0 <__alt_data_end+0xffff01f0>
-  
-  /*
-   * Now ensure that the caches are in synch.
-   */
-  
-  alt_dcache_flush_all();
    1020c:	00103d80 	call	103d8 <alt_dcache_flush_all>
-  alt_icache_flush_all();
-}
    10210:	dfc00017 	ldw	ra,0(sp)
    10214:	dec00104 	addi	sp,sp,4
-  /*
-   * Now ensure that the caches are in synch.
-   */
-  
-  alt_dcache_flush_all();
-  alt_icache_flush_all();
    10218:	00103dc1 	jmpi	103dc <alt_icache_flush_all>
    1021c:	00c00074 	movhi	r3,1
    10220:	18c17b04 	addi	r3,r3,1516
    10224:	1907c83a 	sub	r3,r3,r4
-
-static void ALT_INLINE alt_load_section (alt_u32* from, 
-                                         alt_u32* to, 
-                                         alt_u32* end)
-{
-  if (to != from)
    10228:	0005883a 	mov	r2,zero
-  {
-    while( to != end )
    1022c:	18bff726 	beq	r3,r2,1020c <__alt_data_end+0xffff020c>
-    {
-      *to++ = *from++;
    10230:	114f883a 	add	r7,r2,r5
    10234:	39c00017 	ldw	r7,0(r7)
    10238:	110d883a 	add	r6,r2,r4
@@ -674,12 +624,6 @@ alt_putstr(const char* str)
    102f0:	001031c1 	jmpi	1031c <altera_avalon_jtag_uart_write>
 
 000102f4 <usleep>:
-int ALT_USLEEP (useconds_t us)
-#else
-unsigned int ALT_USLEEP (unsigned int us)
-#endif
-{
-  return alt_busy_sleep(us);
    102f4:	00103501 	jmpi	10350 <alt_busy_sleep>
 
 000102f8 <alt_irq_init>:

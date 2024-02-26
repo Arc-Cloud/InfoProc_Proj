@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(10M50DAF484) Path("C:/Users/matpi/Desktop/Imperial/Yr2/InfoProc/project/fpga/output_files/") File("top.sof") MfrSpec(OpMask(1));
+		Device PartName(10M50DAF484) Path("C:/Users/Student/Desktop/github/InfoProc_Proj/fpga/output_files/") File("top.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

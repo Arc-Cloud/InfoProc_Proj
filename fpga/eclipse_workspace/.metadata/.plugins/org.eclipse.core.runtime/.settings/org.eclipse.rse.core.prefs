@@ -1,4 +1,3 @@
-activeuserprofiles=MSI;Team
+activeuserprofiles=DESKTOP-46V13NQ;Team
 eclipse.preferences.version=1
-org.eclipse.rse.systemtype.local.systemType.defaultUserId=matpi
-useridperkey=MSI.Local\=matpi;
+org.eclipse.rse.systemtype.local.systemType.defaultUserId=Student
