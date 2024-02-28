@@ -13,3 +13,4 @@ class Food(Rect):
         self.floor=floor
     def render(self,floor):
          pygame.draw.rect(floor, self.colour,self.coord)
+    
