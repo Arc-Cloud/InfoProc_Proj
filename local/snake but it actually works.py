@@ -34,7 +34,11 @@ def generateFood():
                        FOOD_WIDTH, FOOD_WIDTH)
 
 SNAKE_WIDTH = 20
-snake_pos = pygame.Rect(100, 50, SNAKE_WIDTH, SNAKE_WIDTH)
+
+accurate_x = 100.0
+accurate_y = 50.0
+
+snake_pos = pygame.Rect(accurate_x, accurate_y, SNAKE_WIDTH, SNAKE_WIDTH)
 "Head of the snake"
 
 snake_body = [Coord(snake_pos.x, snake_pos.y)]
@@ -91,8 +95,11 @@ while True:
     if keys[pygame.K_d]:
         snake_pos.x += 10
     """
-    snake_pos.x -= acc.Input.getX() * 10
-    snake_pos.y += acc.Input.getY() * 10
+    accurate_x -= acc.Input.getX() * 10
+    accurate_y += acc.Input.getY() * 10
+
+    snake_pos.x = accurate_x
+    snake_pos.y = accurate_y
 
     snake_body.insert(0, Coord(snake_pos.x, snake_pos.y))
 
