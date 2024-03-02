@@ -1,4 +1,4 @@
-import pygame, sys, time, random
+import pygame, time, random
 import accelerometer_input as acc
 
 
@@ -12,7 +12,6 @@ SCREEN_Y=480
 
 pygame.display.set_caption('Sophie Snake Slay')
 window = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
-"Target window for game"
 
 clock = pygame.time.Clock()
 
