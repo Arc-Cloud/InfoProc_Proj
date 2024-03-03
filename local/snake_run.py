@@ -59,57 +59,56 @@ def show_score(choice, colour, font, size):
         score_rect.midtop = (SCREEN_W/2, SCREEN_H/1.25)
     window.blit(score_surface, score_rect)
 
+def gamerun():
+    while True:
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
 
-##main program
-while True:
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
+        x_move = 0
+        y_move = 0
 
-    x_move = 0
-    y_move = 0
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            y_move -= 10
+        if keys[pygame.K_s]:
+            y_move += 10
+        if keys[pygame.K_a]:
+            x_move -= 10
+        if keys[pygame.K_d]:
+            x_move += 10
+        
+        snake.move(x_move, y_move)
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-         y_move -= 10
-    if keys[pygame.K_s]:
-        y_move += 10
-    if keys[pygame.K_a]:
-        x_move -= 10
-    if keys[pygame.K_d]:
-        x_move += 10
-    
-    snake.move(x_move, y_move)
-
-    foods_to_pop = []
-    for i, food in enumerate(foods):
-        if snake.asPygameRect().colliderect(food.asPygameRect()):
-            score += 1
-            sounds["omnom"].play()
-            foods_to_pop.insert(0, i)
-            createNewFood()
-            snake.length += 3
-            while random.randint(1, 4) == 1:
+        foods_to_pop = []
+        for i, food in enumerate(foods):
+            if snake.asPygameRect().colliderect(food.asPygameRect()):
+                score += 1
+                sounds["omnom"].play()
+                foods_to_pop.insert(0, i)
                 createNewFood()
-    
-    for i in foods_to_pop:
-        foods.pop(i)
-    
-    floor.render(window)
-    snake.render(window)
-    for food in foods:
-        food.render(window)
+                snake.length += 3
+                while random.randint(1, 4) == 1:
+                    createNewFood()
+        
+        for i in foods_to_pop:
+            foods.pop(i)
+        
+        floor.render(window)
+        snake.render(window)
+        for food in foods:
+            food.render(window)
 
-     #game over
-    if snake.x < 0 or snake.x > SCREEN_W-snake.w or snake.y < 0 or snake.y > SCREEN_H-snake.h:
-        gamover()
+        #game over
+        if snake.x < 0 or snake.x > SCREEN_W-snake.w or snake.y < 0 or snake.y > SCREEN_H-snake.h:
+            gamover()
 
-     #refresh
-    show_score(1, SCORE_COLOUR, 'Comic Sans', 20)
+        #refresh
+        show_score(1, SCORE_COLOUR, 'Comic Sans', 20)
 
-    pygame.display.update()
+        pygame.display.update()
 
-    clock.tick(60)
-                 
+        clock.tick(60)
+                    
