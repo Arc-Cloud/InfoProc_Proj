@@ -34,7 +34,7 @@ def create_table(dynamodb=None):
     )
     return table
 
-def EntryPoint(SessionId, PlayerId):
+def EntryPoint(SessionId, PlayerId, dynamodb = None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 
