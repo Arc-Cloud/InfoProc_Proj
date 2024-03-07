@@ -4,6 +4,11 @@ import accelerometer_input as acc
 import json
 import os
 import pygame, random
+from pygame.locals import *
+
+# initialize game
+pygame.init()
+pygame.font.init()
 
 #the server name and port client wishes to access
 server_name = '13.48.57.52'
@@ -16,9 +21,7 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 print("UDP client running...")
 print("Connecting to server at IP: ", server_name, " PORT: ", server_port)
 
-# initialize game
-pygame.init()
-pygame.font.init()
+gamover_state= False
 
 SCREEN_X= 720
 "Width of the screen"
@@ -35,18 +38,7 @@ SNAKE_COLOUR = (255, 0, 247)
 FOOD_COLOUR = (0, 255, 166)
 SCORE_COLOUR = (255, 0, 247)
 
-class Coord():
-    "X and Y coordinates"
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
 FOOD_WIDTH = 20
-def generateFood():
-    return pygame.Rect(random.randint(0, SCREEN_X - FOOD_WIDTH),
-                       random.randint(0, SCREEN_Y - FOOD_WIDTH),
-                       FOOD_WIDTH, FOOD_WIDTH)
 
 SNAKE_WIDTH = 20
 score = 0
@@ -58,14 +50,16 @@ sounds = { "omnom" : pygame.mixer.Sound("eat_sound.mp3"),
          }
 
 def gamover():
+    
     my_font = pygame.font.SysFont('Times New Roman', 90)
     game_over_surface = my_font.render('YOU DIED', True, (252,3,3) )
     game_over_rect = game_over_surface.get_rect()
     game_over_rect.midtop = (SCREEN_X/2, SCREEN_Y/4)
     window.fill((10,10,10))
     window.blit(game_over_surface, game_over_rect)
-    show_score(0, (252,3,3), 'Comic Sans', 20)
+    show_score(0, (252,3,3), 'Times New Roman', 20)
     pygame.display.flip()
+    
     sounds["womp_womp"].play()
     time.sleep(3)
     pygame.quit()
@@ -97,22 +91,26 @@ while True:
     #process gameData here
     gameData = json.loads(msg_ret)
 
-    food = gameData['food']
+    food_encoded = gameData['food']
+    
+    food = pygame.Rect(food_encoded[0], food_encoded[1], food_encoded[2], food_encoded[3])
 
     users = gameData['userlist']
 
-    score = list(users.keys())[0]['score']
+    gameover_state = gameData['gameover']
+
+    score = 0
 
     #rendering
     window.fill('black')
     for user in users:
         for pos in users[user]['body']:
-            pygame.draw.rect(window, SNAKE_COLOUR, pygame.Rect(pos.x, pos.y, SNAKE_WIDTH, SNAKE_WIDTH))
+            pygame.draw.rect(window, SNAKE_COLOUR, pygame.Rect(pos[0], pos[1], SNAKE_WIDTH, SNAKE_WIDTH))
 
     pygame.draw.rect(window, FOOD_COLOUR, food)
 
     #game over
-    if gamover:
+    if gamover_state:
         sounds["oopsydaisy"].play()
         gamover()
 

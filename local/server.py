@@ -32,13 +32,6 @@ clock = pygame.time.Clock()
 
 FOOD_WIDTH = 20
 
-class Coord():
-    "X and Y coordinates"
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
 def generateFood():
     return pygame.Rect(random.randint(0, SCREEN_X - FOOD_WIDTH),
                        random.randint(0, SCREEN_Y - FOOD_WIDTH),
@@ -51,10 +44,10 @@ accurate_y = 50.0
 
 gameover = False
 
-snake_pos = pygame.Rect(accurate_x, accurate_y, SNAKE_WIDTH, SNAKE_WIDTH)
+snake_pos = [accurate_x, accurate_y]
 "Head of the snake"
 
-snake_body = [Coord(snake_pos.x, snake_pos.y)]
+snake_body = [(snake_pos[0], snake_pos[1])]
 "'Units' of the snake body"
 
 food = generateFood()
@@ -67,35 +60,47 @@ while True:
     msg = json.loads(json_msg)
     msg_x = msg["x"]
     msg_y = msg["y"]
+    
 
     #If first time user, add initial position (spawn snake head)
     if cadd[0] not in userList:
         userList[cadd[0]] = {'position': snake_pos, 'body': snake_body, 'score' : 0}
-        
+        print("user joined")
+        print(cadd)
+
     #Update snake head position
-    userList[cadd[0]]['position'].x -= msg_x * 10
-    userList[cadd[0]]['position'].y += msg_y * 10
+    userList[cadd[0]]['position'][0] -= msg_x * 10
+    userList[cadd[0]]['position'][1] += msg_y * 10
+
     
     #update snake body
-    userList[cadd[0]]['body'].insert(0, Coord(snake_pos.x, snake_pos.y))
+    userList[cadd[0]]['body'].insert(0, (snake_pos[0], snake_pos[1]))
 
     # snake be getting bigger
-    for i in userList: 
-        if userList[i]['position'].colliderect(food):
+    for i in userList:
+        pos = userList[i]['position']
+        pos_rect = pygame.Rect(pos[0],pos[1],SNAKE_WIDTH,SNAKE_WIDTH)
+        if pos_rect.colliderect(food):
             food = generateFood()
             userList[i]['score'] += 1
             break
-        else:
+        else: 
             userList[i]['body'].pop()
+        
     
-    if snake_pos.x < 0 or snake_pos.x > SCREEN_X-SNAKE_WIDTH or snake_pos.y < 0 or snake_pos.y > SCREEN_Y-SNAKE_WIDTH:
+    if snake_pos[0] < 0 or snake_pos[0] > SCREEN_X-SNAKE_WIDTH or snake_pos[1] < 0 or snake_pos[1] > SCREEN_Y-SNAKE_WIDTH:
         gameover = True
         pygame.quit()
+    
 
-    gameState = {'userlist': userList, 'food': food, 'gameover': gameover}
+
+    food_decode = (food.left, food.top, food.width, food.height)
+
+    gameState = {'userlist': userList, 'food': food_decode, 'gameover': gameover}
 
     msg = json.dumps(gameState)
     server_socket.sendto(msg.encode(),(cadd[0], cadd[1]))
+
     #send reply message to all other client process 
     # for i in userList:
     #     if (i != cadd):
