@@ -64,7 +64,7 @@ while True:
 
     #If first time user, add initial position (spawn snake head)
     if cadd[0] not in userList:
-        userList[cadd[0]] = {'position': snake_pos, 'body': snake_body, 'score' : 0}
+        userList[cadd[0]] = {'position': [100,50], 'body': [(100, 50)], 'score' : 0, 'gameover' : False}
         print("user joined")
 
     print("before adding user")    
@@ -75,31 +75,29 @@ while True:
 
     print("update position")
     print(userList)
+
+    pos = userList[cadd[0]]['position']
     
     #update snake body
-    userList[cadd[0]]['body'].insert(0, (snake_pos[0], snake_pos[1]))
+    userList[cadd[0]]['body'].insert(0, (pos[0], pos[1]))
 
     # snake be getting bigger
-    for i in userList:
-        pos = userList[i]['position']
-        pos_rect = pygame.Rect(pos[0],pos[1],SNAKE_WIDTH,SNAKE_WIDTH)
-        if pos_rect.colliderect(food):
-            food = generateFood()
-            userList[i]['score'] += 1
-            break
-        else: 
-            userList[i]['body'].pop()
+    pos_rect = pygame.Rect(pos[0],pos[1],SNAKE_WIDTH,SNAKE_WIDTH)
+    if pos_rect.colliderect(food):
+        food = generateFood()
+        userList[cadd[0]]['score'] += 1
+    else: 
+        userList[cadd[0]]['body'].pop()
         
     
-    if snake_pos[0] < 0 or snake_pos[0] > SCREEN_X-SNAKE_WIDTH or snake_pos[1] < 0 or snake_pos[1] > SCREEN_Y-SNAKE_WIDTH:
-        gameover = True
-        pygame.quit()
+    if pos[0] < 0 or pos[0] > SCREEN_X-SNAKE_WIDTH or pos[1] < 0 or pos[1] > SCREEN_Y-SNAKE_WIDTH:
+        userList['gameover'] = True
     
     print(userList)
 
     food_decode = (food.left, food.top, food.width, food.height)
 
-    gameState = {'userlist': userList, 'food': food_decode, 'gameover': gameover}
+    gameState = {'userlist': userList, 'food': food_decode, 'you':cadd[0]}
 
     msg = json.dumps(gameState)
     server_socket.sendto(msg.encode(),(cadd[0], cadd[1]))
@@ -109,6 +107,8 @@ while True:
     #     if (i != cadd):
     #         server_socket.sendto(msg.encode(),(cadd[0], cadd[1]))
     #         print("Message forwarded to client " + str(cadd))    
+    if gameover:
+        userList.pop(cadd[0])
     clock.tick(60)
 
     

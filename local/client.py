@@ -91,15 +91,17 @@ while True:
     #process gameData here
     gameData = json.loads(msg_ret)
 
+    me = gameData['you']
+
     food_encoded = gameData['food']
     
     food = pygame.Rect(food_encoded[0], food_encoded[1], food_encoded[2], food_encoded[3])
 
     users = gameData['userlist']
 
-    gameover_state = gameData['gameover']
+    gameover_state = users[me]['gameover']
 
-    score = 0
+    score = users[me]['score']
 
     #rendering
     window.fill('black')
