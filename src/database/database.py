@@ -1,4 +1,5 @@
 import boto3
+from botocore.exceptions import ClientError
 
 def create_table(dynamodb=None):
     if not dynamodb:
@@ -23,7 +24,7 @@ def create_table(dynamodb=None):
             },
             {
                 'AttributeName': 'PlayerId',
-                'AttributeType': 'N'
+                'AttributeType': 'S'
             }
         ],
         ProvisionedThroughput={
