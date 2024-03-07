@@ -60,21 +60,18 @@ while True:
     msg = json.loads(json_msg)
     msg_x = msg["x"]
     msg_y = msg["y"]
-    print(cadd)
+    
 
     #If first time user, add initial position (spawn snake head)
     if cadd[0] not in userList:
         userList[cadd[0]] = {'position': [100,50], 'body': [(100, 50)], 'score' : 0, 'gameover' : False}
         print("user joined")
+        print(cadd)
 
-    print("before adding user")    
-    print(userList)
     #Update snake head position
     userList[cadd[0]]['position'][0] -= msg_x * 10
     userList[cadd[0]]['position'][1] += msg_y * 10
 
-    print("update position")
-    print(userList)
 
     pos = userList[cadd[0]]['position']
     
@@ -91,17 +88,15 @@ while True:
         
     
     if pos[0] < 0 or pos[0] > SCREEN_X-SNAKE_WIDTH or pos[1] < 0 or pos[1] > SCREEN_Y-SNAKE_WIDTH:
-        userList['gameover'] = True
+        userList[cadd[0]]['gameover'] = True
     
-    print(userList)
 
     food_decode = (food.left, food.top, food.width, food.height)
 
-    gameState = {'userlist': userList, 'food': food_decode, 'you':cadd[0]}
+    gameState = {'userlist': userList, 'food': food_decode, 'you': cadd[0]}
 
     msg = json.dumps(gameState)
     server_socket.sendto(msg.encode(),(cadd[0], cadd[1]))
-    print(userList)
     #send reply message to all other client process 
     # for i in userList:
     #     if (i != cadd):
