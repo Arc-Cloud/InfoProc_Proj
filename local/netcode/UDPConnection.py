@@ -4,10 +4,10 @@ class UDPConnection():
     """
     Basic UDP host/client.
     """
-
     def __init__(self, ip, port, host = False, timeout = None):
         self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         self.socket.settimeout(timeout)
+        self.socket.setblocking(1)
         self.host = host
         if host:
             try:
@@ -28,6 +28,7 @@ class UDPConnection():
         self.socket.sendto(bytes_, self.pending_responses[response_targ_index][0])
         if mark_as_responded:
             self.pending_responses[response_targ_index][1] = False
+        return True
 
     __BUFFER_SIZE = 4096
     def recv(self, will_respond = True):
@@ -60,3 +61,6 @@ class UDPConnection():
                 self.pending_responses.pop(i)
             else:
                 return
+    
+    def isAlive(self):
+        return self.is_alive

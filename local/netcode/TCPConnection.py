@@ -6,7 +6,7 @@ class TCPConnection():
     """
 
     __CONNECT_TIMEOUT = 1
-    __ACCEPT_TIMEOUT = 1
+    __ACCEPT_TIMEOUT = 0.01
 
     def __init__(self, ip, port, host = False, timeout = None):
         self.socket = s.socket(s.AF_INET, s.SOCK_STREAM)
@@ -131,7 +131,7 @@ class TCPConnection():
                 self.is_alive = False
                 return b""
     
-    def isAlive(self, client_index = 0):
+    def isAlive(self, client_index = None):
         """
         For `host = True`:\n
         Says whether the connection with client of index `client_index` is alive.\n
@@ -139,7 +139,10 @@ class TCPConnection():
         Says whether the connection with host is alive.
         """
         if self.host:
-            return self.is_alive[1][client_index]
+            if client_index == None:
+                return self.is_alive[0]
+            else:
+                return self.is_alive[1][client_index]
         else:
             return self.is_alive
         
