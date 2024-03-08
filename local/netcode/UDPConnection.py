@@ -7,7 +7,6 @@ class UDPConnection():
     def __init__(self, ip, port, host = False, timeout = None):
         self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         self.socket.settimeout(timeout)
-        self.socket.setblocking(1)
         self.host = host
         if host:
             try:
@@ -18,6 +17,7 @@ class UDPConnection():
                 self.is_alive = False
         else:
             self.pending_responses = [[(ip, port), True]]
+            self.is_alive = True
 
     def send(self, bytes_, response_targ_index = 0, mark_as_responded = True):
         """
@@ -40,6 +40,8 @@ class UDPConnection():
         try:
             out, addr = self.socket.recvfrom(self.__BUFFER_SIZE)
         except TimeoutError:
+            return None
+        except OSError:
             return None
 
         if will_respond:

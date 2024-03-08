@@ -6,7 +6,7 @@ class TCPConnection():
     """
 
     __CONNECT_TIMEOUT = 1
-    __ACCEPT_TIMEOUT = 0.01
+    __ACCEPT_TIMEOUT = 0.001
 
     def __init__(self, ip, port, host = False, timeout = None):
         self.socket = s.socket(s.AF_INET, s.SOCK_STREAM)
@@ -49,6 +49,7 @@ class TCPConnection():
         which is no longer alive and has a higher index than the highest alive index).
         """
         if dead_conn_policy == None: dead_conn_policy = "override"
+
         try:
             conn = self.socket.accept()[0]
         except TimeoutError:
@@ -117,6 +118,9 @@ class TCPConnection():
             except ConnectionResetError:
                 self.is_alive[1][client_index] = False
                 return b""
+            except ConnectionAbortedError:
+                self.is_alive[1][client_index] = False
+                return b""
             
         else:
             if timeout != False: self.socket.settimeout(timeout)
@@ -128,6 +132,9 @@ class TCPConnection():
             except TimeoutError:
                 return b""
             except ConnectionResetError:
+                self.is_alive = False
+                return b""
+            except ConnectionAbortedError:
                 self.is_alive = False
                 return b""
     
