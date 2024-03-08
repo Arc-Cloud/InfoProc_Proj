@@ -89,7 +89,6 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
                     for tcp_recv_var in tcp_recv:
                         # Add new
                         if tcp_recv_var == 0:
-                            print("MAKE NEW", tcp_recv)
                             __globals.append(NetworkSharedBytes(id = bytes((next_id,)), send = client[0]))
                             shared_vars.append(__globals[-1])
                             for client_ in clients:
@@ -98,11 +97,9 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
                             continue
                         # Remove
                         elif tcp_recv_var == 1:
-                            print("DELETE", tcp_recv)
                             continue # Should work without
                         try:
                             shared_var_index = [i.id for i in shared_vars].index(bytes((tcp_recv_var,)))
-                            #print("RECV REQ", tcp_recv_var, shared_vars[shared_var_index].id + shared_vars[shared_var_index].get())
                             tcp_conn.send(shared_vars[shared_var_index].id + shared_vars[shared_var_index].get(), client_index = client[0])
                         except ValueError:
                             tcp_conn.send(bytes((1, tcp_recv_var)), client_index = client[0])
@@ -179,7 +176,6 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
             # Prune disconnected users
             for i in range(len(clients) -1, -1, -1):
                 if not tcp_conn.is_alive[1][clients[i][0]]:
-                    print("LOST CLIENT", clients[i])
                     clients.pop(i)
             
             # Prune disconnected variables
@@ -228,7 +224,6 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
                         for i, shared_var in enumerate(shared_vars):
                             if shared_var.id == bytes((tcp_recv_var, )):
                                 tmp = shared_vars[i]
-                                print("DELETE")
                                 tmp.is_alive = False
                                 shared_vars[i] = tmp
                                 break
@@ -241,8 +236,6 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
                     if shared_var_index != -1:
                         tcp_conn.send(shared_vars[shared_var_index].id + shared_vars[shared_var_index].get())
                     else:
-                        print("SENT DEL2", tcp_recv, tcp_recv_var)
-                        print("DONE")
                         tcp_conn.send(bytes((1, tcp_recv_var)))
 
             # Attempt to add new variables
@@ -254,11 +247,9 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
                     elif tcp_recv[0] != 0:
                         tmp = shared_vars[i]
                         tmp.id = bytes((0,))
-                        print("WRONG ID", tcp_recv)
                         tmp.is_alive = False
                         shared_vars[i] = tmp
                     else:
-                        print("RECEIVED ID", tcp_recv)
                         tmp = shared_vars[i]
                         tmp.id = bytes((tcp_recv[1],))
                         shared_vars[i] = tmp
@@ -287,40 +278,33 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
                     if found: udp_recvs.pop(i)
                     else:
                         # Not received
-                        print("TCP SENT", shared_var.id)
                         for i in range(3): # No reason for 3 in particular, can increase or decrease
                             if not tcp_conn.send(shared_var.id):
                                 tcp_conn.close()
                                 break
                             tcp_recv = tcp_conn.recv()
-                            print("RECV", tcp_recv)
                             if tcp_recv == b"":
                                 tcp_conn.close()
                                 break
                             elif tcp_recv[0] == 1:
                                 tmp = shared_vars[tcp_recv[1]]
-                                print("A1", tcp_recv, shared_var)
                                 tmp.is_alive = False
                                 shared_vars[tcp_recv[1]] = tmp
                                 continue
                             elif tcp_recv[0] == 0:
-                                print("A3", tcp_recv, shared_var.id) # Unsafe add, add check
                                 __globals.append(NetworkSharedBytes(id = bytes((tcp_recv[1],))))
                                 shared_vars.append(__globals[-1])
                                 continue
                             elif bytes((tcp_recv[0],)) != shared_var.id:
-                                print("A2", tcp_recv, shared_var.id)
                                 try:
                                     shared_var_index = [j.id for j in shared_vars].index(bytes((tcp_recv[0],)))
                                     tcp_conn.send(shared_vars[shared_var_index].id + shared_vars[shared_var_index].get())
                                 except:
-                                    print("SENT DEL")
                                     tcp_conn.send(bytes((1, tcp_recv[0])))
                                 continue
                             tmp = shared_vars[shared_var_index]
                             tmp.set(tcp_recv[1:])
                             shared_vars[shared_var_index] = tmp
-                            print("GOT EXPECTED")
                             break
         list_lock.release()
 
@@ -329,8 +313,6 @@ def __networkSharedBytesDaemon(ip, port, host, frequency, timeout, shared_vars, 
             time.sleep(remaining_time)
         else:
             cur_end_time = time.time()
-    
-    print("CONN DEAD")
     
     for i in range(len(shared_vars)):
         tmp = shared_vars[i]
