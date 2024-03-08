@@ -89,12 +89,24 @@ class TCPConnection():
             except ConnectionResetError:
                 self.is_alive[1][client_index] = False
                 return False
+            except ConnectionAbortedError:
+                self.is_alive[1][client_index] = False
+                return False
+            except OSError:
+                self.is_alive[1][client_index] = False
+                return False
         else:
             try:
                 self.socket.sendall(bytes_)
                 return True
             except ConnectionResetError:
                 self.is_alive = False
+                return False
+            except ConnectionAbortedError:
+                self.is_alive[1][client_index] = False
+                return False
+            except OSError:
+                self.is_alive[1][client_index] = False
                 return False
     
     __BUFFER_SIZE = 4096
