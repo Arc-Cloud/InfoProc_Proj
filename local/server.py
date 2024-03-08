@@ -118,7 +118,7 @@ class ServerThread(threading.Thread):
     def run(self):
         while self.connection.isAlive(self.player_id) and self.alive:
             print("alive!")
-            client_input = self.connection.recv()
+            client_input = self.connection.recv(self.player_id)
             if client_input:
                 
                 json_msg = client_input.decode()
@@ -137,6 +137,7 @@ class ServerThread(threading.Thread):
                 game_state['alive'] = self.alive
                 msg = json.dumps(game_state)
                 self.connection.send(msg.encode(), self.player_id)
+        
 
 def main():
 

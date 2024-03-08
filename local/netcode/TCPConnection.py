@@ -113,6 +113,7 @@ class TCPConnection():
                     self.is_alive[1][client_index] = False
                 return out
             except TimeoutError:
+                self.is_alive[1][client_index] = False
                 return b""
             except ConnectionResetError:
                 self.is_alive[1][client_index] = False
@@ -126,6 +127,7 @@ class TCPConnection():
                     self.is_alive = False
                 return out
             except TimeoutError:
+                self.is_alive = False
                 return b""
             except ConnectionResetError:
                 self.is_alive = False
