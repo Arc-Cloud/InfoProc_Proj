@@ -62,7 +62,7 @@ def main():
         if game_state_json:
             game_state = json.loads(game_state_json)
             render_game_state(screen, game_state)
-            if game_state['alive']:
+            if not game_state['alive']:
                 connection.close()
                 exit()
 
