@@ -30,9 +30,6 @@ def update_high_score(player_id, new_score, dynamodb=None):
         except ClientError as e:
             logging.error(e)
             return None
-    else:
-        print(f"New score {new_score} is not higher than current high score {current_high_score}.")
-        return None
     
     
 def register_player(player_id, dynamodb=None):
