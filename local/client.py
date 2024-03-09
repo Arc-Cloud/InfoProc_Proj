@@ -67,7 +67,7 @@ def render_game_state(screen, game_state):
     # Render food
     food = game_state['food']
     if (game_state['food_eaten']):
-        sounds['eat_sound'].play()
+        sounds['omnom'].play()
     pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(food['x'], food['y'], FOOD_WIDTH, FOOD_WIDTH))
     show_score(1, SCORE_COLOUR, 'Comic Sans', 20, game_state['score'])
     acc.Input.set7Seg(1,2)
