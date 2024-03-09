@@ -3,6 +3,7 @@ import random
 import pygame
 from netcode.TCPConnection import TCPConnection
 import json
+import time
 
 #select a server port
 HOST = '172.31.47.170'
@@ -30,9 +31,9 @@ class Player:
     def to_dict(self):
         return {
             "player_id": self.player_id,
-            "x": self.x,
-            "y": self.y,
-            "body": self.body,
+            "x": round(self.x, 2),
+            "y": round(self.y, 2),
+            "body": [(round(x,2),round(y,2)) for (x,y) in self.body],
             "score": self.score
         }
 
@@ -43,8 +44,8 @@ class Food:
 
     def to_dict(self):
         return {
-            "x": self.x,
-            "y": self.y
+            "x": round(self.x, 2),
+            "y": round(self.y, 2)
         }
 
 class GameData:
@@ -68,7 +69,7 @@ class GameData:
                 self.players[player_id].x -= x_in * 10
                 self.players[player_id].y += y_in * 10
                 self.players[player_id].body.insert(0, (self.players[player_id].x, self.players[player_id].y))
-                self.players[player_id].body_rect.insert(0, pygame.Rect(x_in, y_in, SNAKE_WIDTH, SNAKE_WIDTH))
+                self.players[player_id].body_rect.insert(0, pygame.Rect(self.players[player_id].x, self.players[player_id].y, SNAKE_WIDTH, SNAKE_WIDTH))
     
     def reduce_player_body(self, player_id):
         with self.lock:
@@ -86,15 +87,14 @@ class GameData:
         player = self.players[player_id]
         player_head_rect = pygame.Rect(player.x,player.y,SNAKE_WIDTH,SNAKE_WIDTH)
         food_rect = pygame.Rect(self.food.x, self.food.y, FOOD_WIDTH, FOOD_WIDTH)
-
         if player_head_rect.colliderect(food_rect):
             self.generate_food()
             player.score += 1
         else: 
             self.reduce_player_body(player_id)
         
-        all_player_bodies = [rect for player in self.players.values() for rect in player.body_rect]
-        if (player_head_rect.collidelist(all_player_bodies) != -1):
+        all_player_bodies = [rect for player in self.players.values() if player.player_id != player_id for rect in player.body_rect]
+        if (player_head_rect.collidelistall(all_player_bodies) != []):
             return True
         if (player.x < 0 or player.x > SCREEN_X-SNAKE_WIDTH or player.y < 0 or player.y > SCREEN_Y-SNAKE_WIDTH):
             return True
@@ -116,11 +116,15 @@ class ServerThread(threading.Thread):
         self.game_data.add_player(player_id, INIT_X, INIT_Y)
 
     def run(self):
-        while self.connection.isAlive(self.player_id) and self.alive:
+        while self.connection.isAlive(self.player_id):
+            if not self.alive:
+                time.sleep(0.1)
+                print("removed player")
+                self.game_data.remove_player(self.player_id)
             print("alive!")
             client_input = self.connection.recv(self.player_id)
+            # this kills player via TCPConnection
             if client_input:
-                
                 json_msg = client_input.decode()
                 msg = json.loads(json_msg)
                 x = msg["x"]
@@ -130,7 +134,6 @@ class ServerThread(threading.Thread):
                 if collide:
                     print("collide??")
                     self.alive = False
-                    self.game_data.remove_player(self.player_id)
                 game_state = self.game_data.to_dict()
                 print("before sending")
                 print(game_state)
@@ -152,6 +155,7 @@ def main():
             server_thread = ServerThread(server, client_index, game_data)
             server_thread.start()
         print(game_data.to_dict())
+        print(server.is_alive)
         clock.tick(60)
 
 if __name__ == "__main__":
