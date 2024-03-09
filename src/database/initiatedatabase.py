@@ -29,15 +29,19 @@ def create_table(dynamodb=None):
                     'KeyType': 'HASH'  # Partition key
                 },
             ],
-            AttributeDefinitions=[
+           AttributeDefinitions=[
                 {
                     'AttributeName': 'PlayerId',
                     'AttributeType': 'S'
+                },
+                {
+                    'AttributeName': 'HighScore',
+                    'AttributeType': 'N'  # Score as a number
                 }
             ],
             ProvisionedThroughput={
-                'ReadCapacityUnits': 10,
-                'WriteCapacityUnits': 10
+                'ReadCapacityUnits': 5,
+                'WriteCapacityUnits': 5
             }
         )
         return table
