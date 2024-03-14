@@ -9,6 +9,10 @@ import os
 import sys
 import random
 import colorsys
+from PIL import Image
+import numpy as np
+from collections import Counter
+
 
 # Server IP address and port
 HOST = '3.8.153.70'
@@ -343,6 +347,32 @@ def get_complementary_color(rgb):
     
     return tuple(int(x * 255) for x in (r, g, b))
 
+
+def get_most_common_color(image_path):
+    image = Image.open(image_path)
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = np.array(image)
+
+    # Filter out fully transparent pixels
+    pixels = pixels.reshape(-1, 4)
+    pixels = pixels[pixels[:, 3] > 0][:, :3]  # Drop the alpha channel information
+
+    # Count colors
+    colors = Counter(map(tuple, pixels))
+
+    # Define a threshold for non-black colors
+    non_black_threshold = 50
+
+    # Filter out colors that are black or close to black
+    colors = {color: count for color, count in colors.items() if all(value > non_black_threshold for value in color)}
+
+    # Find the most common non-black color, defaulting to a placeholder if none are found
+    most_common_non_black_color = max(colors, key=colors.get) if colors else (255, 255, 255)  # Default to white if no non-black color is found
+
+    return tuple(map(int, most_common_non_black_color))
+
 # -----------------------------------------------Load Images-----------------------------------------------------------#
 image_cache = {}
 
@@ -397,7 +427,7 @@ def render_game_state(screen, game_state):
         username = player_data['username']
         dirX = player_data['dirX']
         dirY = player_data['dirY']
-        body_color = player_data['body_color']
+        body_color = get_most_common_color(snake_head_path)
         complement_color = get_complementary_color(body_color)
         #print(body_color)
     

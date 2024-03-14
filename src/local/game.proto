@@ -14,7 +14,6 @@ message Player {
     float dirX = 6;
     float dirY = 7;
     string head_image_path = 8;
-    repeated int32 body_color = 9;
 }
 
 message Food {
